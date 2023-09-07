@@ -2,6 +2,7 @@ import os
 import dotenv
 import discord
 
+a = 2+2
 dotenv.load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
