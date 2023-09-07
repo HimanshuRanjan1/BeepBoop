@@ -26,9 +26,11 @@ async def on_ready():
     print(f"Guild Members : \n - {members}")
     
 
-'''@bot.event
+@bot.event
 async def on_member_join(member):
-    channel = bot.get_channel(1148679496350838856)'''
+    channel = bot.get_channel(1149283536201850880)
+    em = discord.Embed(title = "Huh!!",description = f"A Wild {member.mention} appeared!!")
+    await channel.send(embed = em)
 
 
 @bot.event
@@ -37,7 +39,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.content == "hello boop":
+    if message.content.lower() == "hello boop":
         await channel.send("Hey There!")
 
 bot.run(token)
