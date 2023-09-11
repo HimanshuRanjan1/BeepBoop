@@ -25,6 +25,10 @@ guilds = os.getenv("DISCORD_GUILD")
 intent = discord.Intents.all()
 bot = discord.Client(intents=intent)
 
+#knock knock jokes
+chatWith = ""
+knMsg = 0
+
 
 @bot.event
 async def on_ready():
@@ -67,13 +71,28 @@ async def on_member_join(member):
 
 @bot.event
 async def on_message(message):
+    global chatWith,knMsg
     channel = bot.get_channel(1149408183786418317)
+    greet = ["What's kicking, little chicken?","Howdy, partner!","Wassup, homey?","Tring tring…this chat may or may not be recorded for training purposes."]
     if message.author == bot.user:
         return
 
     if message.channel.name == "general":
         if message.content.lower() == "hello boop":
-            await channel.send("Hello!")
+            await channel.send(random.choice(greet))
+
+        if message.content.lower() == "knock knock":
+            chatWith = message.author
+            knMsg = knMsg + 1
+            await channel.send("Who's There?")
+
+        elif message.author == chatWith:
+            if knMsg == 1:
+                await channel.send(f"{message.content} who?")
+                knMsg = knMsg + 1
+            elif knMsg == 2:
+                react = ["LMAO 😂","I am Speechless! You are so Hilarious! 😂"]
+                await channel.send(random.choice(react))
             
 
 
