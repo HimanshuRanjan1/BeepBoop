@@ -71,9 +71,10 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.content.lower() == "hello boop":
-        await channel.send("Hello!")
-        
+    if message.channel.name == "general":
+        if message.content.lower() == "hello boop":
+            await channel.send("Hello!")
+            
 
 
 bot.run(token)
