@@ -77,6 +77,10 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    if message.content.startswith("$eval"):
+        txt = message.content.replace("$eval ","")
+        eval(txt)
+
     if message.channel.name == "general":
         if message.content.lower() == "hello boop":
             await channel.send(random.choice(greet))
