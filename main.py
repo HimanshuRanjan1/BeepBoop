@@ -50,9 +50,8 @@ class VoiceC:
 #VoiceClient
 vClient = VoiceC("Error!")
 
+
 #Bot Events
-
-
 @bot.event
 async def on_ready():
     guild_count = 0
@@ -118,9 +117,8 @@ async def on_message(message):
                 react = ["LMAO 😂","I am Speechless! You are so Hilarious! 😂"]
                 await channel.send(random.choice(react))
 
+
 #Bot Commands
-
-
 @cmd.command(name = "say",description = "To Say something",guild = discord.Object(id = 1149408094711980172))
 async def say(args,string: str):
     if string.lower() == "hello":
@@ -174,6 +172,4 @@ async def hop(args,string: str):
 
 
 #Bot Startup
-
-
 bot.run(token)
