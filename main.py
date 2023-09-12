@@ -140,7 +140,7 @@ async def leave(args):
         await args.response.send_message(f"Boop is not Connected to any Voice Channel")
 
 
-#Bot Start
+#Bot Startup
 
 
 bot.run(token)
