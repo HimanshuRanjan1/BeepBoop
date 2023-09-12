@@ -5,6 +5,7 @@ import dotenv
 import discord
 from PIL import Image, ImageDraw
 import random
+import asyncio
 
 #Photo Edit
 
@@ -38,8 +39,16 @@ cmd = discord.app_commands.CommandTree(bot)
 chatWith = ""
 knMsg = 0
 
+#Error Handling Purpose
+class VoiceC:
+    def __init__(self,name):
+        self.name = name
+
+    def is_connected(self):
+        return False
+
 #VoiceClient
-vClient = None
+vClient = VoiceC("Error!")
 
 #Bot Events
 
@@ -122,22 +131,46 @@ async def say(args,string: str):
 
 @cmd.command(name = "join_voice",description = "Prompts Boop to join a voice channel",guild = discord.Object(id = 1149408094711980172))
 async def join(args,string: str):
-    for vc in bot.get_guild(args.guild_id).voice_channels:
-        if vc.name == str:
-            break
-    channel = bot.get_channel(vc.id)
     global vClient
-    vClient = await channel.connect()
-    await args.response.send_message(f"Boop Connected to Channel {vc.name}")
+    if vClient.is_connected():
+        await args.response.send_message(f"Boop is already in Channel {vClient.channel.name}.")
+        await args.channel.send("Try using '/hop_to' command to change the Channel Boop is Connected to.")
+    else:
+        for vc in bot.get_guild(args.guild_id).voice_channels:
+            if vc.name.lower() == string.lower():
+                break
+        channel = bot.get_channel(vc.id)
+        vClient = await channel.connect()
+        await args.response.send_message(f"Boop Connected to Voice Channel {vc.name}.")
+        
 
 @cmd.command(name = "leave_voice",description = "Prompts Boop to leave the Voice Channel",guild = discord.Object(id = 1149408094711980172))
 async def leave(args):
     global vClient
-    try:
+    if vClient.is_connected():
         await vClient.disconnect()
-        await args.response.send_message(f"Boop Disconnected from Channel {vClient.channel.name}")
-    except:
-        await args.response.send_message(f"Boop is not Connected to any Voice Channel")
+        await args.response.send_message(f"Boop Disconnected from Voice Channel {vClient.channel.name}.")
+        vClient = VoiceC("Error!")
+    else:
+        await args.response.send_message(f"Boop is not Connected to any Voice Channel.")
+
+@cmd.command(name = "hop_to",description = "Prompts Boop to hop to another Voice Channel",guild = discord.Object(id = 1149408094711980172))
+async def hop(args,string: str):
+    global vClient
+    if vClient.is_connected():
+        await vClient.disconnect()
+        vClient = VoiceC("Error!")
+        await asyncio.sleep(1)
+        for vc in bot.get_guild(args.guild_id).voice_channels:
+            if vc.name.lower() == string.lower():
+                break
+        channel = bot.get_channel(vc.id)
+        vClient = await channel.connect()
+        await args.response.send_message(f"Boop Hopped to Voice Channel {vc.name}.")
+
+    else:
+        await args.response.send_message(f"Boop is not Connected to any Channel.")
+        await args.channel.send("Try using '/join_voice' command to prompt Boop to Connect to a Voice Channel.")
 
 
 #Bot Startup
