@@ -102,11 +102,10 @@ async def on_message(message):
 
 @cmd.command(name = "say",description = "To Say something",guild = discord.Object(id = 1149408094711980172))
 async def say(args,string: str):
-    channel = bot.get_channel(args.channel_id)
     if string.lower() == "hello":
-        await channel.send(f"{string} {args.user.display_name}")
+        await args.response.send_message(f"{string} {args.user.display_name}")
     else:
-        await channel.send(f"{string}")
+        await args.response.send_message(f"{string}")
 
 
 @cmd.command(name = "join_voice",description = "Prompts Boop to join a voice channel",guild = discord.Object(id = 1149408094711980172))
@@ -117,14 +116,16 @@ async def join(args,string: str):
     channel = bot.get_channel(vc.id)
     global vClient
     vClient = await channel.connect()
-    await args.channel.send(f"Boop Connected to Channel {vc.name}")
+    await args.response.send_message(f"Boop Connected to Channel {vc.name}")
 
 @cmd.command(name = "leave_voice",description = "Prompts Boop to leave the Voice Channel",guild = discord.Object(id = 1149408094711980172))
 async def leave(args):
     global vClient
-    await vClient.disconnect()
-    await args.channel.send(f"Boop Disconnected from Channel {vClient.channel.name}")
-            
+    try:
+        await vClient.disconnect()
+        await args.response.send_message(f"Boop Disconnected from Channel {vClient.channel.name}")
+    except:
+        await args.response.send_message(f"Boop is not Connected to any Voice Channel")
 
 
 bot.run(token)
