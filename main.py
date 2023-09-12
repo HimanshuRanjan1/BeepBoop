@@ -1,8 +1,12 @@
+#Imports
+
 import os
 import dotenv
 import discord
 from PIL import Image, ImageDraw
 import random
+
+#Photo Edit
 
 def add_corners(im, rad):
     circle = Image.new('L', (rad * 2, rad * 2), 0)
@@ -17,10 +21,14 @@ def add_corners(im, rad):
     im.putalpha(alpha)
     return im
 
+#env file loader
+
 dotenv.load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
 guilds = os.getenv("DISCORD_GUILD")
+
+#Bot initiator
 
 intent = discord.Intents.all()
 bot = discord.Client(intents=intent)
@@ -32,6 +40,8 @@ knMsg = 0
 
 #VoiceClient
 vClient = None
+
+#Bot Events
 
 
 @bot.event
@@ -99,6 +109,8 @@ async def on_message(message):
                 react = ["LMAO 😂","I am Speechless! You are so Hilarious! 😂"]
                 await channel.send(random.choice(react))
 
+#Bot Commands
+
 
 @cmd.command(name = "say",description = "To Say something",guild = discord.Object(id = 1149408094711980172))
 async def say(args,string: str):
@@ -126,6 +138,9 @@ async def leave(args):
         await args.response.send_message(f"Boop Disconnected from Channel {vClient.channel.name}")
     except:
         await args.response.send_message(f"Boop is not Connected to any Voice Channel")
+
+
+#Bot Start
 
 
 bot.run(token)
