@@ -220,7 +220,7 @@ async def hop(args,string: str):
         await args.channel.send("Try using '/join_voice' command to prompt Boop to Connect to a Channel.")
 
 
-@cmd.command(name = "play_song",description = 'Prompts Boop to play the mentioned song',guild = discord.Object(id = 1149408094711980172))
+@cmd.command(name = "play_song",description = 'Prompts Boop to play a song',guild = discord.Object(id = 1149408094711980172))
 async def play(args,url: str):
     global guilds
     vClient = guilds[args.guild.name]
@@ -239,7 +239,7 @@ async def play(args,url: str):
     vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename))
 
 
-@cmd.command(name = "pause_song",description = "Prompts Boop to pause the song its playing",guild = discord.Object(id = 1149408094711980172))
+@cmd.command(name = "pause_song",description = "Prompts Boop to pause the song",guild = discord.Object(id = 1149408094711980172))
 async def pause(args):
     global guilds
     vClient = guilds[args.guild.name]
@@ -251,7 +251,7 @@ async def pause(args):
         await args.response.send_message("Boop is not playing any Song. Use '/play_song' command to play a song")
 
 
-@cmd.command(name = "resume",description = "Prompts Boop to resume the paused song",guild = discord.Object(id = 1149408094711980172))
+@cmd.command(name = "resume",description = "Prompts Boop to resume the song",guild = discord.Object(id = 1149408094711980172))
 async def resume(args):
     global guilds
     vClient = guilds[args.guild.name]
