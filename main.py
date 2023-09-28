@@ -7,7 +7,6 @@ from PIL import Image, ImageDraw
 import random
 import yt_dlp as youtube_dl
 import asyncio
-from termcolor import colored
 
 
 #Photo Edit
@@ -111,7 +110,7 @@ async def on_ready():
             register(guild)
         await cmd.sync(guild = discord.Object(id = guild.id))
         
-    print(colored("Boop is READY!",attrs = ['bold']))
+    print("Boop is READY!")
     
 
 @bot.event
@@ -181,6 +180,7 @@ async def say(args,string: str):
 @cmd.command(name = "join_voice",description = "Prompts Boop to join a voice channel",guild = discord.Object(id = 1149408094711980172))
 async def join(args,string: str):
     global guilds
+    vClient = guilds[args.guild.name]
     try:
         for vc in bot.get_guild(args.guild_id).voice_channels:
             if vc.name.lower() == string.lower():
