@@ -63,6 +63,20 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data['title'] if stream else ytdl.prepare_filename(data)
         return filename
 
+#Search Song by name
+
+def search(title):
+    global ytdl,r
+    #if get_url(title) is not None:
+     #   return title
+    r = ytdl.extract_info(title,download=False)
+
+    if r == None:
+        return None
+    
+    videocode = r['entries'][0]['id']
+
+    return "https://www.youtube.com/watch?v={}".format(videocode)
 
 #env file loader
 
@@ -221,7 +235,7 @@ async def hop(args,string: str):
 
 
 @cmd.command(name = "play_song",description = 'Prompts Boop to play a song',guild = discord.Object(id = 1149408094711980172))
-async def play(args,url: str):
+async def play(args,name: str):
     global guilds
     vClient = guilds[args.guild.name]
     try:
@@ -233,7 +247,9 @@ async def play(args,url: str):
         pass
 
     await args.channel.typing()
-    await args.response.send_message(f"**Boop is Now Playing the song **")
+    await args.response.send_message(f"**Boop is Now Playing {name} **")
+
+    url = search(name)
 
     filename = await YTDLSource.from_url(url,loop = bot.loop)
     vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename))
