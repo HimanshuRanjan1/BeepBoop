@@ -1,6 +1,5 @@
 #Important imports
 
-import matplotlib
 import os
 import dotenv
 import discord
