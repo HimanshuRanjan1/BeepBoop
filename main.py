@@ -9,6 +9,7 @@ import yt_dlp as youtube_dl
 import asyncio
 
 
+
 #Photo Edit
 
 def add_corners(im, rad):
@@ -110,13 +111,10 @@ async def on_ready():
 
     file = open("guilds.txt",'r')
     file_txt = []
-    name = ''
     for i in file:
-        if i != ',':
-            name += i
-        else:
-            file_txt.append(name)
-            name = ''
+        for j in i.split(','):
+            file_txt.append(j)
+            
     file.close()
     for guild in bot.guilds:
         guilds[guild.name] = 0
@@ -196,12 +194,15 @@ async def join(args,string: str):
     global guilds
     vClient = guilds[args.guild.name]
     try:
+        print('here')
         for vc in bot.get_guild(args.guild_id).voice_channels:
             if vc.name.lower() == string.lower():
                 break
+        print('here1')
         channel = bot.get_channel(vc.id)
         guilds[args.guild.name] = await channel.connect()
         await args.response.send_message(f"Boop Connected to Channel {vc.name}.")
+        print('here2')
     except:
         await args.response.send_message(f"Boop is already in Channel {vClient.channel.name}.")
         await args.channel.send("Try using '/hop_to' command to change the Channel Boop is Connected to.")
