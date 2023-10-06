@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 import random
 import yt_dlp as youtube_dl
 import asyncio
-
+import numpy
 
 
 #Photo Edit
