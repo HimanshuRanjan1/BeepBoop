@@ -190,13 +190,13 @@ async def say(args,string: str):
 
 
 @cmd.command(name = "join_voice",description = "Prompts Boop to join a voice channel",guild = discord.Object(id = 1149408094711980172))
-async def join(args,string: str):
+async def join(args,channel_name: str):
     global guilds
     vClient = guilds[args.guild.name]
     try:
         print('here')
         for vc in bot.get_guild(args.guild_id).voice_channels:
-            if vc.name.lower() == string.lower():
+            if vc.name.lower() == channel_name.lower():
                 break
         print('here1')
         channel = bot.get_channel(vc.id)
@@ -236,7 +236,7 @@ async def hop(args,string: str):
 
 
 @cmd.command(name = "play_song",description = 'Prompts Boop to play a song',guild = discord.Object(id = 1149408094711980172))
-async def play(args,name: str):
+async def play(args,name: str = None, url: str = None):
     global guilds
     vClient = guilds[args.guild.name]
     try:
@@ -247,13 +247,24 @@ async def play(args,name: str):
     except:
         pass
 
-    await args.channel.typing()
-    await args.response.send_message(f"**Boop is Now Playing {name} **")
+    await args.response.send_message("*Searching.....*")
 
-    url = search(name)
+    if url == None:
+        try:
+            url = search(name)
+
+        except Exception as e:
+            await args.channel.typing() 
+            await args.channel.send(f"**Error Occured :** *{e}*")
+            await args.channel.send("Try giving youtube url to the song instead")
+            return
 
     filename = await YTDLSource.from_url(url,loop = bot.loop)
     vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename))
+
+    await args.channel.typing() 
+    await args.channel.send(f"**Boop is Now Playing** *{name}*")
+    
 
 
 @cmd.command(name = "pause_song",description = "Prompts Boop to pause the song",guild = discord.Object(id = 1149408094711980172))
