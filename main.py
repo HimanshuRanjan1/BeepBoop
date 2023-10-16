@@ -253,7 +253,7 @@ async def play(args,name: str):
     url = search(name)
 
     filename = await YTDLSource.from_url(url,loop = bot.loop)
-    vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename))
+    vClient.play(discord.FFmpegPCMAudio(executable = "D:\Discordbot\BeepBoop\\ffmpeg.exe",source = filename))
 
 
 @cmd.command(name = "pause_song",description = "Prompts Boop to pause the song",guild = discord.Object(id = 1149408094711980172))
@@ -297,3 +297,54 @@ async def stop(args):
 
 
 bot.run(token)
+
+
+#add queue
+
+@commands.command()
+async def join(self, ctx):
+
+    if not ctx.message.author.voice:
+        await ctx.send("You are not connected to a voice channel!")
+        return
+    else:
+        channel = ctx.message.author.voice.channel
+        self.queue = {}
+        await ctx.send(f'Connected to ``{channel}``')
+
+    await channel.connect()
+
+@commands.command()
+async def play(self, ctx, *, url):
+
+    try:
+
+        async with ctx.typing():
+            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+
+            if len(self.queue) == 0:
+
+                self.start_playing(ctx.voice_client, player)
+                await ctx.send(f':mag_right: **Searching for** ``' + url + '``\n<:youtube:763374159567781890> **Now Playing:** ``{}'.format(player.title) + "``")
+
+            else:
+                
+                self.queue[len(self.queue)] = player
+                await ctx.send(f':mag_right: **Searching for** ``' + url + '``\n<:youtube:763374159567781890> **Added to queue:** ``{}'.format(player.title) + "``")
+
+    except:
+
+        await ctx.send("Somenthing went wrong - please try again later!")
+
+def start_playing(self, voice_client, player):
+
+    self.queue[0] = player
+
+    i = 0
+    while i <  len(self.queue):
+        try:
+            voice_client.play(self.queue[i], after=lambda e: print('Player error: %s' % e) if e else None)
+
+        except:
+            pass
+        i += 1
