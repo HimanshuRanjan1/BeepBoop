@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw
 import random
 import yt_dlp as youtube_dl
 import asyncio
-import numpy
 
+loop = ""
 
 #Photo Edit
 
@@ -96,6 +96,33 @@ cmd = discord.app_commands.CommandTree(bot)
 chatWith = ""
 knMsg = 0
 
+queue = []
+prev = []
+
+async def wrapper(song,channel):
+    if song['name'] != None:
+        await channel.send(f"**Boop is Now Playing : ** *{song['name']}*")
+    else:
+        await channel.send(f"**Boop is Now Playing : ** *{song['file']}*")
+
+
+async def check_queue(vClient,guild_name,channel,name,file):
+    global queue,prev,guilds,loop
+    
+    vClient = guilds[guild_name]
+
+    prev.append({'name':name,'file':file})
+
+    if len(queue) != 0:
+        song = queue.pop(0)
+        prev.append(song)
+        filename = song['file']
+        vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename),after = lambda x = None: asyncio.run_coroutine_threadsafe(check_queue(vClient,guild_name,channel,song['name'],song['file']),loop))
+        if song['name'] != None:
+            await channel.send(f"**Boop is Now Playing : ** *{song['name']}*")
+        else:
+            await channel.send(f"**Boop is Now Playing : ** *{song['file']}*")
+    
 
 #Bot Events
 
@@ -107,7 +134,9 @@ def register(guild):
 
 @bot.event
 async def on_ready():
-    global guilds
+    global guilds,loop
+
+    loop = asyncio.get_event_loop()
 
     file = open("guilds.txt",'r')
     file_txt = []
@@ -185,6 +214,7 @@ async def on_message(message):
 async def say(args,string: str):
     if string.lower() == "hello":
         await args.response.send_message(f"{string} {args.user.display_name}")
+
     else:
         await args.response.send_message(f"{string}")
 
@@ -194,15 +224,12 @@ async def join(args,channel_name: str):
     global guilds
     vClient = guilds[args.guild.name]
     try:
-        print('here')
         for vc in bot.get_guild(args.guild_id).voice_channels:
             if vc.name.lower() == channel_name.lower():
                 break
-        print('here1')
         channel = bot.get_channel(vc.id)
         guilds[args.guild.name] = await channel.connect()
         await args.response.send_message(f"Boop Connected to Channel {vc.name}.")
-        print('here2')
     except:
         await args.response.send_message(f"Boop is already in Channel {vClient.channel.name}.")
         await args.channel.send("Try using '/hop_to' command to change the Channel Boop is Connected to.")
@@ -237,7 +264,7 @@ async def hop(args,string: str):
 
 @cmd.command(name = "play_song",description = 'Prompts Boop to play a song',guild = discord.Object(id = 1149408094711980172))
 async def play(args,name: str = None, url: str = None):
-    global guilds
+    global guilds,queue
     vClient = guilds[args.guild.name]
     try:
         vc = bot.get_guild(args.guild_id).voice_channels[0]
@@ -249,22 +276,33 @@ async def play(args,name: str = None, url: str = None):
 
     await args.response.send_message("*Searching.....*")
 
-    if url == None:
-        try:
-            url = search(name)
+    async with args.channel.typing():    
+        if url == None:
+            try:
+                url = search(name)
 
-        except Exception as e:
-            await args.channel.typing() 
-            await args.channel.send(f"**Error Occured :** *{e}*")
-            await args.channel.send("Try giving youtube url to the song instead")
+            except Exception as e: 
+                await args.channel.send(f"**Error Occured :** *{e}*")
+                await args.channel.send("Try giving youtube url to the song instead")
+                return
+
+        filename = await YTDLSource.from_url(url,loop = bot.loop)
+        if not vClient.is_playing():
+            vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename),after = lambda x = None: asyncio.run_coroutine_threadsafe(check_queue(vClient,args.guild.name,args.channel,name,filename),loop))
+        else:
+            queue.append({})
+            queue[-1]['name'] = name
+            queue[-1]['file'] = filename
+            if name != None:
+                await args.channel.send(f"*{name}* **has been added to the queue**")
+            else:
+                await args.channel.send(f"*{filename}* **has been added to the queue**")
             return
-
-    filename = await YTDLSource.from_url(url,loop = bot.loop)
-    vClient.play(discord.FFmpegPCMAudio(executable = "C:\\Personal Data\\Codes\\ffmpeg\\bin\\ffmpeg.exe",source = filename))
-
-    await args.channel.typing() 
-    await args.channel.send(f"**Boop is Now Playing** *{name}*")
-    
+        
+        if name != None:
+            await args.channel.send(f"**Boop is Now Playing :** *{name}*")
+        else:
+            await args.channel.send(f"**Boop is Now Playing :** *{filename}*")
 
 
 @cmd.command(name = "pause_song",description = "Prompts Boop to pause the song",guild = discord.Object(id = 1149408094711980172))
@@ -272,10 +310,10 @@ async def pause(args):
     global guilds
     vClient = guilds[args.guild.name]
     await args.channel.typing()
-    try:
+    if vClient.is_playing():
         vClient.pause()
         await args.response.send_message("**Boop paused the Song.**")
-    except:
+    else:
         await args.response.send_message("Boop is not playing any Song. Use '/play_song' command to play a song")
 
 
@@ -305,6 +343,5 @@ async def stop(args):
             
 
 #Bot Startup
-
 
 bot.run(token)
